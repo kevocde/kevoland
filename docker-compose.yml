@@ -1,19 +1,16 @@
-version: "3"
-
-# More info at https://github.com/pi-hole/docker-pi-hole/ and https://docs.pi-hole.net/
 services:
   pihole:
     container_name: pihole
     image: pihole/pihole:latest
     # For DHCP it is recommended to remove these ports and instead add: network_mode: "host"
     ports:
-      - "192.168.1.7:53:53/tcp"
-      - "192.168.1.7:53:53/udp"
-      - "192.168.1.7:67:67/udp" # Only required if you are using Pi-hole as your DHCP server
-      - "192.168.1.7:80:80/tcp"
+      - '${STATIC_IP}:53:53/tcp'
+      - '${STATIC_IP}:53:53/udp'
+      - '${STATIC_IP}:67:67/udp' # Only required if you are using Pi-hole as your DHCP server
+      - '${STATIC_IP}:80:80/tcp'
     environment:
       TZ: 'America/Bogota'
-      WEBPASSWORD: 'gunsrosados.1X'
+      WEBPASSWORD: $PIHOLE_PASS
     # Volumes store your data between container upgrades
     volumes:
       - './env/pihole/etc-pihole:/etc/pihole'
@@ -22,3 +19,17 @@ services:
     cap_add:
       - NET_ADMIN # Required if you are using Pi-hole as your DHCP server, else not needed
     restart: unless-stopped
+  samba:
+    container_name: samba
+    image: dperson/samba
+    restart: always
+    command: '-u "${SAMBA_USER};${SAMBA_PASS}" -s "public;/public;yes;no"'
+    stdin_open: true
+    tty: true
+    ports:
+      - 139:130
+      - 445:445
+    volumes:
+      # - /usr/share/zoneinfo/America/Argentina/Mendoza:/etc/localtime
+      - ./shared/public:/public
+      # - /home/pi/downloads:/downloads
