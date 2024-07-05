@@ -13,7 +13,7 @@ services:
       - './env/pihole/etc-pihole:/etc/pihole'
       - './env/pihole/etc-dnsmasq.d:/etc/dnsmasq.d'
     cap_add:
-      - NET_ADMIN 
+      - NET_ADMIN
     restart: unless-stopped
   samba:
     container_name: samba
@@ -26,4 +26,4 @@ services:
       - 139:130
       - 445:445
     volumes:
-      - ./shared/public:/public
+      - ./env/shared/public:/public
